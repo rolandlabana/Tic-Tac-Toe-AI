@@ -123,20 +123,44 @@ class RandomAI:
             if game.is_valid_move(i):
                 possibleMoves.append(i)
         return (random.choice(possibleMoves))
-
-
+# this AI makes a list of possible moves, then preferred moves, then picks a random preferred
+# move. It has no block function because there were too many bugs.
+class Felix_AI:
+   def determine_move(self, game):  
+        possibleMoves = []
+        moves = []
+        for i in range(9):
+            if game.is_valid_move(i):
+                possibleMoves.append(i)
+        for m in possibleMoves:
+            idx = m
+            try:
+                if game.board[idx-1]== 'O' or game.board[idx+1]== 'O':
+                    moves.append(m)
+                if game.board[idx-3]== 'O' or game.board[idx+3]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            if m == 0 or m == 2 or m ==6 or m == 8:
+                    moves.append(m)
+        if len(moves)==0:
+            return possibleMoves[0]
+        return moves[random.randint(0, len(moves)-1)]
+            
+            
 if __name__ == "__main__":
     # Here you can decide how to initialize players
     # For example, to test with one human and one AI:
     # player1 = HumanPlayer('X')
     # player2 = AIPlayer('O', SimpleAI())
-    # game = TicTacToe(player1, player2)
+    # game = TicTacToe(player1, player2)X
     # game.play()
 
     # For students' AI competition:
-    player1 = HumanPlayer('X')
-    #player2 = HumanPlayer('X')
-    player2 = AIPlayer('O', SimpleAI())  # Replace with student AI implementation - name function with your name ie: "Jim-AI"
+    #player1 = HumanPlayer('X')
+    player2 = HumanPlayer('X')
+    #player1 = AIPlayer('X', SimpleAI())  # Replace with student AI implementation - name function with your name ie: "Jim-AI"
     #player2 = AIPlayer('X', RandomAI())  # Replace with another student AI implementation or the same for testing ie: "Mary-AI"
+    player1 = AIPlayer('O', Felix_AI())
     game = TicTacToe(player1, player2)
     game.play()
