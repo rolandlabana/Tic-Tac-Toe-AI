@@ -1,15 +1,10 @@
-
 # (c) 2024 Roland Labana
-
 import random
-
 class Player:
     def __init__(self, symbol):
         self.symbol = symbol
-
     def make_move(self, game):
         raise NotImplementedError("Subclass must implement abstract method")
-
 class HumanPlayer(Player):
     def make_move(self, game):
         while True:
@@ -22,13 +17,11 @@ class HumanPlayer(Player):
                     print("Invalid move. Try again.")
             except ValueError:
                 print("Please enter a number.")
-
 # Template for AI Player
 class AIPlayer(Player):
     def __init__(self, symbol, strategy):
         super().__init__(symbol)
         self.strategy = strategy
-
     def make_move(self, game):
         # Here's where students would implement their AI logic
         print(f"{self.symbol}'s AI is thinking...")
@@ -42,14 +35,11 @@ class AIPlayer(Player):
                 if game.is_valid_move(i):
                     game.make_move(i, self.symbol)
                     break
-
 class TicTacToe:
     def __init__(self, player1, player2):
         self.board = [' ' for _ in range(9)]
         self.players = [player1, player2]
         #self.display_board()  # Display the board initially
-
-
     def play(self):
          while True:
             for player in self.players:
@@ -63,13 +53,10 @@ class TicTacToe:
                     self.display_board()
                     print("It's a draw!")
                     return
-
     def is_valid_move(self, move):
         return self.board[move] == ' ' and 0 <= move <= 8
-
     def make_move(self, move, symbol):
         self.board[move] = symbol
-
     def check_win(self, theBoard):
         win_conditions = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
@@ -77,10 +64,8 @@ class TicTacToe:
             [0, 4, 8], [2, 4, 6]  # Diagonals
         ]
         return any(all(theBoard[i] == symbol for i in combo) for symbol in ['X', 'O'] for combo in win_conditions)
-
     def is_board_full(self):
         return ' ' not in self.board
-
     def display_board(self):
         #print("\nCurrent Board State:")
         for i in range(0, 9, 3):
@@ -88,9 +73,7 @@ class TicTacToe:
             if i < 6:
                 print("-----------")
         print ()
-
         
-
 # Example of a simple AI strategy - pick FIRST available space 0 - 8
 class SimpleAI:
     def determine_move(self, game):
@@ -123,20 +106,102 @@ class RandomAI:
             if game.is_valid_move(i):
                 possibleMoves.append(i)
         return (random.choice(possibleMoves))
-
-
+# this AI makes a list of possible moves, then preferred moves, then picks a random preferred
+# move. It has no block function because there were too many bugs.
+class Felix_Jessie_AI:
+   def determine_move(self, game):  
+        rows = 3 #this will change depending on the amount of rows in a board
+        possibleMoves = []
+        moves = []
+        #look for a possible win (works by subbing in "O" and using the check_win)
+        for spot in range (0,9):
+            if game.is_valid_move(spot):
+                game.board[spot] = "O"
+                win = game.check_win(game.board) #check win returns true or false using any(), which checks for true items in a list
+                if win:
+                    print ("Good Game")
+                    win_spot = spot
+                    game.board[spot] = ' '
+                    return win_spot
+                game.board[spot] = ' '
+        #look for a possible spot (works the same as the previous check but for the opposite purpose)
+        for spot in range(0,9):
+            if game.is_valid_move(spot):
+                game.board[spot] = "X"
+                lose = game.check_win(game.board)
+                if lose:
+                    print ("BLOCK")
+                    block_spot = spot
+                    game.board[spot] = ' '
+                    return block_spot
+                game.board[spot] = ' '
+                possibleMoves.append(spot)
+        # check for friendly neighbors on top, to the sides, and diagonally,
+        # if the list goes out of range it just passes
+        # this appends to a list of good moves called moves
+        for m in possibleMoves:
+            idx = m
+            try:
+                if game.board[idx-1]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[idx+1]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[idx-(len(game.board)//rows)]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[idx+(len(game.board)//rows)]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[(idx-(len(game.board)//rows)+1)]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[(idx+(len(game.board)//rows))+1]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[(idx-(len(game.board)//rows)-1)]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[(idx+(len(game.board)//rows))-1]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            if m == 0 or m == 2 or m ==6 or m == 8:
+                    moves.append(m)
+        # if there are no good moves, it picks the first one
+        if len(moves)==0:
+            return possibleMoves[0]
+        # picks a random good move
+        return moves[random.randint(0, len(moves)-1)]
+            
+            
 if __name__ == "__main__":
     # Here you can decide how to initialize players
     # For example, to test with one human and one AI:
     # player1 = HumanPlayer('X')
     # player2 = AIPlayer('O', SimpleAI())
-    # game = TicTacToe(player1, player2)
+    # game = TicTacToe(player1, player2)X
     # game.play()
-
     # For students' AI competition:
+    #player1 = HumanPlayer('X')
     player1 = HumanPlayer('X')
-    #player2 = HumanPlayer('X')
-    player2 = AIPlayer('O', SimpleAI())  # Replace with student AI implementation - name function with your name ie: "Jim-AI"
+    #player1 = AIPlayer('X', SimpleAI())  # Replace with student AI implementation - name function with your name ie: "Jim-AI"
     #player2 = AIPlayer('X', RandomAI())  # Replace with another student AI implementation or the same for testing ie: "Mary-AI"
+    player2 = AIPlayer('O', Felix_Jessie_AI())
     game = TicTacToe(player1, player2)
     game.play()
