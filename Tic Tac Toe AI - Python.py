@@ -123,20 +123,161 @@ class RandomAI:
             if game.is_valid_move(i):
                 possibleMoves.append(i)
         return (random.choice(possibleMoves))
+# this AI makes a list of possible moves, then preferred moves, then picks a random preferred
+# move. It has no block function because there were too many bugs.
+class Felix_Jessie_AI:
+   def determine_player(self, game):
+       p1 = True
+       o = game.board.count("O")
+       x = game.board.count("X")
+       if x>o:
+           p1 = False
+       return p1
+   def determine_move(self, game):  
+        rows = 3 #this will change depending on the amount of rows in a board
+        possibleMoves = []
+        moves = []
+        #look for a possible win (works by subbing in "O" and using the check_win)
+        for spot in range (0,9):
+            if game.is_valid_move(spot):
+                game.board[spot] = "O"
+                win = game.check_win(game.board) #check win returns true or false using any(), which checks for true items in a list
+                if win:
+                    print ("Good Game!")
+                    win_spot = spot
+                    game.board[spot] = ' '
+                    return win_spot
+                game.board[spot] = ' '
+        #look for a possible spot (works the same as the previous check but for the opposite purpose)
+        for spot in range(0,9):
+            if game.is_valid_move(spot):
+                game.board[spot] = "X"
+                lose = game.check_win(game.board)
+                if lose:
+                    print ("BLOCK")
+                    block_spot = spot
+                    game.board[spot] = ' '
+                    return block_spot
+                game.board[spot] = ' '
+                possibleMoves.append(spot)
+        # check for friendly neighbors on top, to the sides, and diagonally,
+        # if the list goes out of range it just passes
+        # this appends to a list of good moves called moves
+        for m in possibleMoves:
+            idx = m
+            try:
+                if game.board[idx-1]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[idx+1]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[idx-(len(game.board)//rows)]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[idx+(len(game.board)//rows)]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[(idx-(len(game.board)//rows)+1)]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[(idx+(len(game.board)//rows))+1]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[(idx-(len(game.board)//rows)-1)]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            try:
+                if game.board[(idx+(len(game.board)//rows))-1]== 'O':
+                    moves.append(m)
+            except IndexError:
+                pass
+            # this is to set up a potential trap
+            if m == 0 or m == 2 or m ==6 or m == 8:
+                    moves.append(m)
+            # we want this to only happen when the AI is p2 so that it can block possible traps
+            if m == 4 and not self.determine_player(game):
+                return m
+        # if there are no good moves, it picks the first one
+        if len(moves)==0:
+            return possibleMoves[0]
+        # picks a random good move
+        return moves[random.randint(0, len(moves)-1)]
+   
+class MinimaxAI:
+    def FJ_minimax(self, game, depth, is_maximizing):
+        #BASE CASE(s) check for win or tie
 
+        if game.check_win(game.board):
+            if not is_maximizing:
+                return 1
+            else:
+                return -1
+        elif game.is_board_full():
+            return 0
 
+        if is_maximizing:
+            best_score = -float('inf') #best score starts low at negative infinity
+            for move in range(9): #each space in 3x3 grid
+                if game.is_valid_move(move):
+                    game.make_move(move, 'O') #test move O
+                    score = self.FJ_minimax(game, depth + 1, False) #recursion! (calls as minimizer)
+                    game.board[move] = ' ' #undo move
+                    best_score = max(score, best_score) #update score
+            return best_score
+        else: #is minimizer
+            best_score = float('inf') #set best at infinity (so we can only go down)
+            for move in range(9): #pretty much the same
+                if game.is_valid_move(move):
+                    game.make_move(move, 'X') #moves X bc this is minimizer
+                    score = self.FJ_minimax(game, depth + 1, True) #recurs as max
+                    game.board[move] = ' '
+                    best_score = min(score, best_score)
+            return best_score
+         
+    def determine_move(self, game):
+        best_move = None
+        best_score = -float('inf') #set best score to negative infinity
+
+        for move in range(9): #loop through all possible moves on the 3x3 board
+            if game.is_valid_move(move):
+                game.make_move(move, 'O') #ai test plays O 
+                score = self.FJ_minimax(game, 0, False)  #call minimax using min for the next player.
+                game.board[move] = ' '  #undo move
+                #update the best score if one is found
+                if score > best_score:
+                    best_score = score
+                    best_move = move
+
+        return best_move
+            
+            
 if __name__ == "__main__":
     # Here you can decide how to initialize players
     # For example, to test with one human and one AI:
     # player1 = HumanPlayer('X')
     # player2 = AIPlayer('O', SimpleAI())
-    # game = TicTacToe(player1, player2)
+    # game = TicTacToe(player1, player2)X
     # game.play()
 
     # For students' AI competition:
+    #player1 = HumanPlayer('X')
     player1 = HumanPlayer('X')
-    #player2 = HumanPlayer('X')
-    player2 = AIPlayer('O', SimpleAI())  # Replace with student AI implementation - name function with your name ie: "Jim-AI"
+    #player1 = AIPlayer('X', SimpleAI())  # Replace with student AI implementation - name function with your name ie: "Jim-AI"
     #player2 = AIPlayer('X', RandomAI())  # Replace with another student AI implementation or the same for testing ie: "Mary-AI"
+    player2 = AIPlayer('O', MinimaxAI())
     game = TicTacToe(player1, player2)
     game.play()
