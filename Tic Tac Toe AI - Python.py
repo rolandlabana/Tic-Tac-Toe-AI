@@ -143,7 +143,7 @@ class Felix_Jessie_AI:
                 game.board[spot] = "O"
                 win = game.check_win(game.board) #check win returns true or false using any(), which checks for true items in a list
                 if win:
-                    print ("Good Game!")
+                    print("Good Game!")
                     win_spot = spot
                     game.board[spot] = ' '
                     return win_spot
@@ -234,7 +234,7 @@ class MinimaxAI:
             for move in range(9): #each space in 3x3 grid
                 if game.is_valid_move(move):
                     game.make_move(move, 'O') #test move O
-                    score = self.FJ_minimax(game, depth + 1, False) #recursion! (calls as minimizer)
+                    score = self.FJ_minimax(game, depth+1, False) #recursion! (calls as minimizer)
                     game.board[move] = ' ' #undo move
                     best_score = max(score, best_score) #update score
             return best_score
@@ -243,7 +243,7 @@ class MinimaxAI:
             for move in range(9): #pretty much the same
                 if game.is_valid_move(move):
                     game.make_move(move, 'X') #moves X bc this is minimizer
-                    score = self.FJ_minimax(game, depth + 1, True) #recurs as max
+                    score = self.FJ_minimax(game, depth+1, True) #recurs as max
                     game.board[move] = ' '
                     best_score = min(score, best_score)
             return best_score
