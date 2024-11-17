@@ -77,6 +77,10 @@ class TicTacToe {
     var board: [String] { return _board }  // Computed property for board access
     private var players: [Player]
 
+    func undoMove(at move: Int) {
+        _board[move] = " "
+    }
+
     init(player1: Player, player2: Player) {
         self.players = [player1, player2]
     }
@@ -160,10 +164,65 @@ class RandomAI: AI {
     }
 }
 
+// Minimax AI Implementation
+class MinimaxAI: AI {
+    let symbol: Character
+    let opponentSymbol: Character
+    
+    init(symbol: Character) {
+        self.symbol = symbol
+        self.opponentSymbol = symbol == "X" ? "O" : "X"
+    }
+    
+    func determineMove(in game: TicTacToe) -> Int {
+        let (_, move) = minimax(game: game, isMaximizing: true)
+        return move
+    }
+    
+    private func minimax(game: TicTacToe, isMaximizing: Bool) -> (score: Int, move: Int) {
+        if game.checkWin() {
+            return (isMaximizing ? -1 : 1, -1)  // -1 for loss, 1 for win
+        }
+        if game.isBoardFull() {
+            return (0, -1)  // 0 for draw
+        }
+        
+        var bestMove = -1
+        
+        if isMaximizing {
+            var bestScore = Int.min
+            for move in 0..<9 where game.isValidMove(move) {
+                game.makeMove(move, symbol: symbol)
+                let (score, _) = minimax(game: game, isMaximizing: false)
+                game.undoMove(at: move)  // Use the new undoMove method instead of directly setting _board
+                if score > bestScore {
+                    bestScore = score
+                    bestMove = move
+                }
+            }
+            return (bestScore, bestMove)
+        } else {
+            var bestScore = Int.max
+            for move in 0..<9 where game.isValidMove(move) {
+                game.makeMove(move, symbol: opponentSymbol)
+                let (score, _) = minimax(game: game, isMaximizing: true)
+                game.undoMove(at: move)  // Use the new undoMove method
+                if score < bestScore {
+                    bestScore = score
+                    bestMove = move
+                }
+            }
+            return (bestScore, bestMove)
+        }
+    }
+}
+
 // Main function to run the game
 if #available(macOS 10.15, *) {
     let player1 = HumanPlayer(symbol: "X")
-    let player2 = AIPlayer(symbol: "O", strategy: RandomAI())
+    let player2 = AIPlayer(symbol: "O", strategy: MinimaxAI(symbol: "O"))
+
+    //let player2 = AIPlayer(symbol: "O", strategy: RandomAI())
     let game = TicTacToe(player1: player1, player2: player2)
     game.play()
 }
