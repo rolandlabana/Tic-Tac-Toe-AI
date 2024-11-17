@@ -43,14 +43,14 @@ public static void main(String[] args) {
 
 game.board : list 0..8 of “ “  | “X” | “O”
 game.is_valid_move(i) : returns True or False
-game.check_win() : Returns True or False
+game.check_win(theBoard) : Returns True or False   #I made the change we talked about in class - it now takes a list representing the board instead of using the actual board. You can pass it the actual board or a copy you update.
 
 These are the only functions you should need to call from the code I provide.
 You can create additional functions as needed. 
 I will supply the full code after you come up with some approaches for the AI move function.
 
 
-NOTE: Should we make it so that check_win() doesn’t check the actual current state but can take in a board configuration and report back win or lose?
+NOTE: Should we make it so that check_win() doesn’t check the actual current state but can take in a board configuration and report back win or lose?   YES - I've made this change!
 
 
 
