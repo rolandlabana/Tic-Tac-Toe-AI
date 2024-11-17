@@ -6,8 +6,9 @@ import pygame
 import sys
 import time
 
-PRINT_ON = True
+PRINT_ON = False
 DEBUG_PRINT_ON = False
+DRAW_GRAPHICS = True
 
 def print_on(s):
     if PRINT_ON == True:
@@ -69,19 +70,22 @@ class TicTacToe:
         #self.display_board()  # Display the board initially
 
         # For graphical display
-        pygame.init()
-        self.screen = pygame.display.set_mode((300, 300))
-        pygame.display.set_caption("Tic Tac Toe")
-        self.font = pygame.font.Font(None, 36)
-        self.clock = pygame.time.Clock()
+        if DRAW_GRAPHICS:
+            pygame.init()
+            self.screen = pygame.display.set_mode((300, 300))
+            pygame.display.set_caption("Tic Tac Toe")
+            self.font = pygame.font.Font(None, 36)
+            self.clock = pygame.time.Clock()
 
     def play(self):
          while True:
-            # Process events
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+
+            if DRAW_GRAPHICS:
+                # Process events
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
 
             for player in self.players:
                 self.display_board()
@@ -152,9 +156,10 @@ class TicTacToe:
         print_on("")
 
     def display_graphical_board(self):
+     if DRAW_GRAPHICS:
         # Clear screen
         self.screen.fill((255, 0, 0))
-        print("drawing graphical board")
+        # print("drawing graphical board")
         
         win_text = self.font.render("hello", True, (255, 0, 0))  # Red text
         text_rect = win_text.get_rect(center=(100, 150))  # Center the text
@@ -672,6 +677,6 @@ if __name__ == "__main__":
     print ("Player 2: ", wins[2], round((wins[2]/numGames)*100), "%","   Sym = ", player2.symbol, "  Strat = ", player2.strategy)
     print ("Ties    : ", wins[0], round((wins[0]/numGames)*100), "%")
     print ()
-    input("press any key ... ")
+    if DRAW_GRAPHICS: input("press any key ... ")  # delay to keep graphic screen open
 
 
