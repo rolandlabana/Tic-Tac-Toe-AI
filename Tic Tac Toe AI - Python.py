@@ -2,6 +2,9 @@
 # (c) 2024 Roland Labana
 
 import random
+import pygame
+import sys
+import time
 
 PRINT_ON = True
 DEBUG_PRINT_ON = False
@@ -65,20 +68,34 @@ class TicTacToe:
         self.players = [player1, player2]
         #self.display_board()  # Display the board initially
 
-
+        # For graphical display
+        pygame.init()
+        self.screen = pygame.display.set_mode((300, 300))
+        pygame.display.set_caption("Tic Tac Toe")
+        self.font = pygame.font.Font(None, 36)
+        self.clock = pygame.time.Clock()
 
     def play(self):
          while True:
+            # Process events
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+
             for player in self.players:
                 self.display_board()
+                self.display_graphical_board()
                 player.make_move(self)
                 if self.check_win(game.board):
                     self.display_board()
+                    self.display_graphical_board()
                     print_on(f"                    {player.symbol} wins!")
                     if player.symbol == "X": input("press any key to cont..")
                     return (player.symbol)  #return who wins
                 if self.is_board_full():
                     self.display_board()
+                    self.display_graphical_board()
                     print_on("                    It's a draw!")
                     return ('tie')  #tie
 
@@ -133,6 +150,30 @@ class TicTacToe:
                 print_on("-----------")
         print_on ("")
         print_on("")
+
+    def display_graphical_board(self):
+        # Clear screen
+        self.screen.fill((255, 0, 0))
+        print("drawing graphical board")
+        
+        win_text = self.font.render("hello", True, (255, 0, 0))  # Red text
+        text_rect = win_text.get_rect(center=(100, 150))  # Center the text
+        self.screen.blit(win_text, text_rect)
+
+        # Draw lines
+        for line in range(1, 3):
+            pygame.draw.line(self.screen, (0, 0, 0), (line * 100, 0), (line * 100, 300), 2)
+            pygame.draw.line(self.screen, (0, 0, 0), (0, line * 100), (300, line * 100), 2)
+        
+        # Draw symbols
+        for i in range(9):
+            symbol = self.board[i]
+            if symbol != ' ':
+                text = self.font.render(symbol, True, (0, 0, 0))
+                self.screen.blit(text, (i % 3 * 100 + 35, i // 3 * 100 + 35))
+
+        pygame.display.flip()  # Update the display after drawing
+        time.sleep(1)
 
      #Helper function for JudahsCoolAI
     def make_temporary_move(self, move, symbol):
@@ -605,7 +646,7 @@ if __name__ == "__main__":
     #player2 = AIPlayer('O', MinimaxAI_depth('O', 1))  
 
     player1 = AIPlayer('X', RandomAI())
-    player2 = AIPlayer('O', MinimaxAI_depth_Eval('O', 6))  # Replace with student AI implementation - name function with your name ie: "Jim-AI"
+    player2 = AIPlayer('O', MinimaxAI_depth_Eval('O', 9))  # Replace with student AI implementation - name function with your name ie: "Jim-AI"
 
     wins = [0,0,0]
 
@@ -631,5 +672,6 @@ if __name__ == "__main__":
     print ("Player 2: ", wins[2], round((wins[2]/numGames)*100), "%","   Sym = ", player2.symbol, "  Strat = ", player2.strategy)
     print ("Ties    : ", wins[0], round((wins[0]/numGames)*100), "%")
     print ()
+    input("press any key ... ")
 
 

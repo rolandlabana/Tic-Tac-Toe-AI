@@ -5,6 +5,36 @@
 
 import Foundation
 
+import SwiftUI
+
+struct TicTacToeBoardView: View {
+    let board: [String]
+    
+    var body: some View {
+        VStack(spacing: 5) {
+            ForEach(0..<3, id: \.self) { row in
+                HStack(spacing: 5) {
+                    ForEach(0..<3, id: \.self) { col in
+                        let index = row * 3 + col
+                        Text(board[index])
+                            .font(.system(size: 40))
+                            .frame(width: 60, height: 60)
+                            .background(Color.white)
+                            .border(Color.black, width: 1)
+                    }
+                }
+            }
+        }
+        .padding()
+    }
+}
+
+struct TicTacToeBoardView_Previews: PreviewProvider {
+    static var previews: some View {
+        TicTacToeBoardView(board: Array(repeating: " ", count: 9))
+    }
+}
+
 // Global variables for print control
 public var PRINT_ON = true
 public var DEBUG_PRINT_ON = false
@@ -72,6 +102,7 @@ class AIPlayer: Player {
     }
 }
 
+
 class TicTacToe {
     private var _board = Array(repeating: " ", count: 9)
     var board: [String] { return _board }  // Computed property for board access
@@ -89,20 +120,26 @@ class TicTacToe {
         while true {
             for player in players {
                 displayBoard()
+                displayGraphicalBoard()  // only works in app environment
                 player.makeMove(in: self)
                 if checkWin() {
                     displayBoard()
+                    displayGraphicalBoard()  // only works in app environment
                     print_on("\(player.symbol) wins!")
                     return
                 }
                 if isBoardFull() {
                     displayBoard()
+                    displayGraphicalBoard()  // only works in app environment
                     print_on("It's a draw!")
                     return
                 }
             }
         }
+
     }
+
+    
 
     func isValidMove(_ move: Int) -> Bool {
         return _board[move] == " " && move >= 0 && move < 9
@@ -148,6 +185,22 @@ class TicTacToe {
                 break
             }
         }
+    }
+}
+
+extension TicTacToe {
+    func displayGraphicalBoard() {
+        let view = TicTacToeBoardView(board: board)
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 300, height: 300),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            backing: .buffered,
+            defer: false)
+        
+        window.center()
+        window.title = "Tic-Tac-Toe"
+        window.contentView = NSHostingView(rootView: view)
+        window.makeKeyAndOrderFront(nil)
     }
 }
 
