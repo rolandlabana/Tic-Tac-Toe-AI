@@ -8,7 +8,7 @@ import time
 
 PRINT_ON = False
 DEBUG_PRINT_ON = False
-DRAW_GRAPHICS = True
+DRAW_GRAPHICS = False
 
 def print_on(s):
     if PRINT_ON == True:
@@ -95,7 +95,7 @@ class TicTacToe:
                     self.display_board()
                     self.display_graphical_board()
                     print_on(f"                    {player.symbol} wins!")
-                    if player.symbol == "X": input("press any key to cont..")
+                    #if player.symbol == "X": input("press any key to cont..")
                     return (player.symbol)  #return who wins
                 if self.is_board_full():
                     self.display_board()
@@ -178,7 +178,7 @@ class TicTacToe:
                 self.screen.blit(text, (i % 3 * 100 + 35, i // 3 * 100 + 35))
 
         pygame.display.flip()  # Update the display after drawing
-        time.sleep(1)
+        time.sleep(0.5)
 
      #Helper function for JudahsCoolAI
     def make_temporary_move(self, move, symbol):
@@ -187,6 +187,25 @@ class TicTacToe:
         is_winning = self.check_win(self.board) #Check if that player move is a winning one
         self.board[move] = original_symbol  # reset it back to its original state
         return is_winning
+    
+    #Helper function for Judah, Noah
+    def make_temporary_move(self, move, symbol):
+        original_symbol = self.board[move] #Have a place to keep what the original board looks like withouto making a move
+        self.board[move] = symbol #This is having the player "move" to a pos on the board. The player doesn't actually move
+        is_winning = self.check_win(self.board) #Check if that player move is a winning one
+        self.board[move] = original_symbol  # reset it back to its original state
+        return is_winning
+        
+    #Helper function for Judah, Noah
+    def checkPlayer(self):
+        availableMoves = []
+        for i in range(9):
+            if self.is_valid_move(i):
+                availableMoves.append(i)
+        if (len(availableMoves)%2 == 0):
+            return 1
+        else:
+            return 0
 
         
 
@@ -628,6 +647,509 @@ class MinimaxAI_depth_Eval:
         return score
 
 
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+# Students' final versions below
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+#
+# Aaron Mike Aaron Mike Aaron Mike Aaron Mike Aaron Mike Aaron Mike Aaron Mike
+#
+class AaronMikeMinimax:
+    def __init__(self, symbol):
+        self.mysymbol = symbol
+        if symbol == 'O':
+            enemysymbol = 'X'
+        else:
+            enemysymbol = 'O'
+        self.enemysymbol = enemysymbol
+
+    def depthevalfunc(self, game):
+        if (game.board[4] == self.mysymbol) and (game.board[8] == self.mysymbol or game.board[6] == self.mysymbol or game.board[0] == self.mysymbol or game.board[2] == self.mysymbol):
+            return 1
+        if (game.board[4] == self.enemysymbol) and (game.board[8] == self.enemysymbol or game.board[6] == self.enemysymbol or game.board[0] == self.enemysymbol or game.board[2] == self.enemysymbol):
+            return -1
+        else:
+            return 0
+
+
+    def minimax_evaluation (self, game, arewemaximizing, curdepth):
+        maxdepth = 1 
+        #change this number to whatever depth you want it to go to
+
+        if game.check_win(game.board) == True:
+            if arewemaximizing == False:
+                return 1
+            else:
+                return -1
+        elif game.is_board_full() == True:
+            return 0
+            
+        if curdepth == maxdepth: #if we reach the maximum depth we're gonna to go to
+            best_value = self.depthevalfunc(game)
+            return best_value
+
+        
+        if arewemaximizing == True:
+            best_value = -float('inf')
+            for move in range(9):
+                if game.is_valid_move(move):
+                    game.board[move] = self.mysymbol
+                    valueofmove = self.minimax_evaluation(game, False, curdepth+1)
+                    game.board[move] = ' '
+                    best_value = max(valueofmove, best_value)
+            return best_value
+        
+        else:
+            best_value = float('inf')
+            for move in range(9):
+                if game.is_valid_move(move):
+                    game.board[move] = self.enemysymbol
+                    valueofmove = self.minimax_evaluation(game, True, curdepth+1)
+                    game.board[move] = ' '
+                    best_value = min(valueofmove, best_value)
+            return best_value
+
+    def determine_move(self, game):
+        best_value = -float('inf')
+        best_move = None # Store the current best move for AI
+        curdepth = 0
+
+
+        #going through the spaces of the board/list indexes
+        for move in range(9):
+            if game.is_valid_move(move): # Check if space is empty
+                game.board[move] = self.mysymbol  # Simulate AI move
+                valueofmove = self.minimax_evaluation(game, False, curdepth)
+                game.board[move] = ' '
+                
+                # If this move has a better value, update the best move
+                if valueofmove > best_value:
+                    best_value = valueofmove # Update the best value found so far
+                    best_move = move # Update the best move to the current move
+
+        # Return the board location of the best move for the AI (the list index)
+        return best_move
+
+# @@@@@
+# Felix Jesse Felix Jesse Felix Jesse Felix Jesse Felix Jesse Felix Jesse Felix Jesse 
+# @@@@
+
+class Felix_Jesse_Depth_limit:
+    def __init__(self,symbol): #sets symbol for AI so that it can play O or X
+        self.symbol=symbol
+        if symbol=='X':
+            self.opponent_symbol='O'
+        else:
+            self.opponent_symbol='X'
+        self.limit = int(input("what should the limit be? "))
+
+    def FJ_limit(self, game, depth, maximizing, best_score):
+        if depth <= self.limit:
+            #BASE CASE(s) check for win or tie
+            if game.check_win(game.board):
+                if not maximizing:
+                    return 1
+                else:
+                    return -1
+            elif game.is_board_full():
+                return 0
+
+            if maximizing:
+                best_score = -float('inf') #best score starts low at negative infinity
+                for move in range(9): #each space in 3x3 grid
+                    if game.is_valid_move(move):
+                        game.make_move(move, self.symbol) #test move
+                        score = self.FJ_limit(game, depth+1, False, best_score) #recursion! (calls as minimizer)
+                        game.board[move] = ' ' #undo move
+                        best_score = max(score, best_score) #update score
+                return best_score
+            else: #is minimizer
+                best_score = float('inf') #set best at infinity (so we can only go down)
+                for move in range(9): #pretty much the same
+                    if game.is_valid_move(move):
+                        game.make_move(move, self.opponent_symbol) #moves p2 bc its minimizing
+                        score = self.FJ_limit(game, depth+1, True, best_score) #recurs as max
+                        game.board[move] = ' '
+                        best_score = min(score, best_score)
+                return best_score
+        else:
+            return best_score
+
+    def determine_move(self, game):
+        best_move = None
+        best_score = -float('inf') #set best score to negative infinity
+
+        for move in range(9): #loop through all possible moves on the 3x3 board
+            if game.is_valid_move(move):
+                game.make_move(move, self.symbol) #ai test plays player 1
+                score = self.FJ_limit(game, 0, False, best_score)  #call minimax using min for the next player.
+                game.board[move] = ' '  #undo move 
+                #update the best score if one is found
+                if score > best_score or (score == best_score and best_move is None):
+                    best_score = score
+                    best_move = move
+
+        return best_move
+    
+# @@@
+# Gabe Giancarlo Gabe Giancarlo Gabe Giancarlo Gabe Giancarlo Gabe Giancarlo Gabe Giancarlo
+# @@@
+
+# Helper Tree class for MiniMax, implemented by Giancarlo
+class TreeNode:
+    def __init__(self, board, score):
+        self.board = board
+        self.score = score
+        self.children = []
+
+    def add_child(self, child_node):
+        self.children.append(child_node)
+    
+    def print_tree(self, level=0):
+        indent = "  " * level
+        board_str = ''.join(self.board)
+        print(f"{indent}Board: {board_str}, Score: {self.score}")
+        for child in self.children:
+            if isinstance(child, TreeNode):
+                child.print_tree(level + 1)
+                
+    def dfs(self, target_score, depth, find_max):
+        # Base case: if the node has the target score and is a leaf, return its depth
+        if self.score == target_score and not self.children:
+            return depth
+
+        # Recursive case: explore children
+        depths = [
+            child.dfs(target_score, depth + 1, find_max) for child in self.children
+            if (find_max and child.score >= target_score) or (not find_max and child.score <= target_score)
+        ]
+        return min(depths, default=float('inf'))
+    
+    """
+    Finds the depth of the shallowest node with the target score.
+    If find_max is True, we search for the highest score; otherwise, the lowest score.
+    Not implemented in Minimax V 1.1 but could be used in the future
+    """
+    def find_best_depth(self, target_score, find_max=True):
+        return self.dfs(target_score, 0, find_max)
+
+''' 
+"AI" that uses the MiniMax algorithm to determine the next move.
+The algorithm first builds a tree of all possibilities, then it
+assigns a score to each of them, and lastly it picks the value
+that is best for the current symbol.
+The algorithm assumes the other player will always play optimally.
+Implemented by Gabe and Giancarlo 
+'''
+class MiniMaxGG:
+
+    def __init__(self, symbol):
+        self.symbol = symbol
+
+    # Helper function; different from your is_board_full as it asks for a board 
+    # instead of checking the object's board field
+    def is_board_full(self, board):
+        return ' ' not in board
+
+    # Build the tree and assign scores based on the leaf nodes
+    def buildTree(self, board, turn):
+        # Base cases
+        winner = None
+        if game.check_win(board):
+            winner = 'X' if turn == 'O' else 'O'
+        if winner:
+            return TreeNode(board, 1 if winner == self.symbol else -1)
+        if self.is_board_full(board):
+            return TreeNode(board, 0)
+
+        # Create root node for current board
+        root = TreeNode(board[:], 0)
+
+        # Initialize list to store scores of child nodes
+        child_scores = []
+
+        # Iterate through available moves
+        for move in range(9):
+            if board[move] == ' ':
+                # Make the move
+                board[move] = turn
+                # Recursively call buildTree on the new board state
+                next_turn = 'X' if turn == 'O' else 'O'
+                child_node = self.buildTree(board[:], next_turn)
+                root.add_child(child_node)
+                child_scores.append(child_node.score)
+                # Undo the move
+                board[move] = ' '
+
+        # Assign score to root based on children's scores
+        if turn == self.symbol:
+            root.score = max(child_scores)
+        else:
+            root.score = min(child_scores)
+
+        return root
+
+    # Pick the first good move on the children array
+    def pickMove(self):
+        # Choose the move with the best score
+        best_score = max(child.score for child in self.root.children)
+        best_moves = [child for child in self.root.children if child.score == best_score]
+
+        # If multiple moves have the same best score, you can choose the first one
+        best_move = best_moves[0]
+
+        # Find the move that resulted in this board
+        for tile in range(len(game.board)):
+            if game.board[tile] != best_move.board[tile]:
+                return tile
+
+    def determine_move(self, game):
+        board = game.board[:]
+        self.root = self.buildTree(board, self.symbol)
+        return self.pickMove()
+    
+class MiniMaxDepthGG(MiniMaxGG):
+
+    def __init__(self, symbol, depth):
+        super().__init__(symbol)
+        self.depth = depth
+    
+    '''
+    Scores if leaf node is reached:
+    +1000: win at leaf node
+    -1000: lose at leaf node
+    0: tie at leaf node
+    
+    Scores in other cases:
+    +3: control of the center tile (position 4)
+    -3: opponent controls the center tile
+    
+    +2: control of a corner tile (positions 0, 2, 6, 8)
+    -2: opponent controls a corner tile
+    
+    +1: control of an edge tile (positions 1, 3, 5, 7)
+    -1: opponent controls an edge tile
+    
+    +50: immediate win (two player symbols and one empty space in a line)
+    -50: immediate block (opponent has two symbols and one empty space in a line)
+    
+    +5: creating a potential fork (one player symbol and two empty spaces in a line)
+    -10: preventing an opponent fork (one opponent symbol and two empty spaces in a line)
+    
+    +1 per player symbol in a winning line with no opponent symbols
+    -1 per opponent symbol in a winning line with no player symbols
+    
+    +1: symmetry bonus for controlling corners diagonally (e.g., positions 0 and 8 or 2 and 6)
+    
+    Late-game adjustments:
+    +20: completing a line with two player symbols and one empty space (prioritized in late game)
+    -20: blocking a line with two opponent symbols and one empty space (prioritized in late game)
+    '''
+    def evaluate(self, board, player):
+        opponent = 'X' if player == 'O' else 'O'
+        score = 0
+
+        # Positional advantage
+        center = 4
+        corners = [0, 2, 6, 8]
+        edges = [1, 3, 5, 7]
+
+        # Center control
+        if board[center] == player:
+            score += 3
+        elif board[center] == opponent:
+            score -= 3
+
+        # Corner control
+        for corner in corners:
+            if board[corner] == player:
+                score += 2
+            elif board[corner] == opponent:
+                score -= 2
+
+        # Edge control
+        for edge in edges:
+            if board[edge] == player:
+                score += 1
+            elif board[edge] == opponent:
+                score -= 1
+
+        # Line evaluation and advanced heuristics
+        winning_lines = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Columns
+            [0, 4, 8], [2, 4, 6]             # Diagonals
+        ]
+
+        for line in winning_lines:
+            player_count = sum(1 for i in line if board[i] == player)
+            opponent_count = sum(1 for i in line if board[i] == opponent)
+            empty_count = sum(1 for i in line if board[i] == ' ')
+
+            if player_count == 2 and empty_count == 1:
+                score += 50  # Immediate win
+            if opponent_count == 2 and empty_count == 1:
+                score -= 50  # Immediate block
+
+            if player_count == 1 and empty_count == 2:
+                score += 5  # Encourage creating forks
+            if opponent_count == 1 and empty_count == 2:
+                score -= 10  # Discourage opponent forks
+
+            if player_count > 0 and opponent_count == 0:
+                score += player_count  # Potential winning line
+            elif opponent_count > 0 and player_count == 0:
+                score -= opponent_count  # Opponent's potential winning line
+
+        # Symmetry bonus
+        if board[0] == player and board[8] == ' ':
+            score += 1
+        if board[2] == player and board[6] == ' ':
+            score += 1
+
+        # Late-game adjustments
+        empty_spaces = sum(1 for i in board if i == ' ')
+        if empty_spaces <= 3:
+            if player_count == 2 and empty_count == 1:
+                score += 20  # Late-game boost for completing lines
+            if opponent_count == 2 and empty_count == 1:
+                score -= 20  # Late-game boost for blocking threats
+
+        return score
+
+
+    # Build Tree according the depth limitation, if leaf is not reached use the above eval function
+    def buildTree(self, board, turn, depth):
+        # Base cases
+        winner = None
+        if game.check_win(board):
+            winner = 'X' if turn == 'O' else 'O'
+        if winner:
+            return TreeNode(board, 1000 if winner == self.symbol else -1000)
+        if self.is_board_full(board):
+            return TreeNode(board, 0)
+        
+        # No leaf node was reached, call eval function to determine score
+        if depth == 0:
+            return TreeNode(board, self.evaluate(board, turn))
+
+        # Create root node for current board
+        root = TreeNode(board[:], 0)
+
+        # Initialize list to store scores of child nodes
+        child_scores = []
+
+        # Iterate through available moves
+        for move in range(9):
+            if board[move] == ' ':
+                # Make the move
+                board[move] = turn
+                # Recursively call buildTree on the new board state
+                next_turn = 'X' if turn == 'O' else 'O'
+                child_node = self.buildTree(board[:], next_turn, depth-1)
+                root.add_child(child_node)
+                child_scores.append(child_node.score)
+                # Undo the move
+                board[move] = ' '
+
+        # Assign score to root based on children's scores
+        if turn == self.symbol:
+            root.score = max(child_scores)
+        else:
+            root.score = min(child_scores)
+
+        return root
+    
+    def determine_move(self, game):
+        board = game.board[:]
+        self.root = self.buildTree(board, self.symbol, self.depth)
+        return self.pickMove()
+
+# @@@
+# Judah Noah Judah Noah Judah Noah Judah Noah Judah Noah Judah Noah Judah Noah Judah Noah Judah Noah 
+# @@@
+#Minimax. With depth control.
+class NoahJudahMiniMax:
+
+    def __init__(self, max_depth=None):
+        self.max_depth = max_depth
+        pass 
+
+    def determine_move(self, game):
+        best_score = float("inf")
+        best_move = [] #List of all the best moves
+        is_maximizing = None #Decides if we are maximizing or not
+        availableMoves = [] #All moves that are available
+        score = 0
+
+        AIsym = game.players[game.checkPlayer()].symbol
+
+        if AIsym == 'X':
+            is_maximizing = True
+        else:
+            is_maximizing = False
+            best_score = -float("inf")
+        
+        for i in range(9):
+            if game.is_valid_move(i):
+                availableMoves.append(i)
+                game.board[i] = AIsym  # Assume 'O' is the AI's symbol
+                score = self.minimax(game, is_maximizing, self.max_depth)
+                game.board[i] = ' '  # Undo move
+                if is_maximizing and best_score >= score:
+                    if score < best_score:
+                        best_move = []
+                    best_score = score
+                    best_move.append(i)
+                if not is_maximizing and best_score <= score:
+                    if best_score < score:
+                        best_move = []
+                    best_score = score
+                    best_move.append(i)
+
+
+        if len(best_move) == 0:
+            return availableMoves[random.randint(0,len(availableMoves)-1)]
+        
+        return best_move[random.randint(0,len(best_move)-1)]
+
+    def minimax(self, game, is_maximizing, level):
+        if game.check_win(game.board):
+            if is_maximizing:
+                return -1  # AI wins
+            else:
+                return 1  # Opponent wins
+        else:
+            if game.is_board_full():
+                return 0  # Tie
+            if (level == 0):
+                return 0
+        
+        p = game.players[game.checkPlayer()].symbol
+        
+        if is_maximizing:
+            best_score = -float("inf")
+            for i in range(9):
+                if game.is_valid_move(i):
+                    game.board[i] = 'O'  # Opponent's symbol
+                    score = self.minimax(game, False, level-1)
+                    game.board[i] = ' '  # Undo move
+                    best_score = max(score, best_score)
+
+            return best_score
+
+        if not is_maximizing:
+            best_score = float("inf")
+            for i in range(9):
+                if game.is_valid_move(i):
+                    game.board[i] = 'X'  # AI's symbol
+                    score = self.minimax(game, True, level-1)
+                    game.board[i] = ' '  # Undo move
+                    best_score = min(score, best_score)
+                    #print(best_score,p,i)
+            
+            return best_score
+
 
 
 
@@ -650,12 +1172,16 @@ if __name__ == "__main__":
     #player1 = AIPlayer('O', MinimaxAI('O'))  
     #player2 = AIPlayer('O', MinimaxAI_depth('O', 1))  
 
-    player1 = AIPlayer('X', RandomAI())
-    player2 = AIPlayer('O', MinimaxAI_depth_Eval('O', 9))  # Replace with student AI implementation - name function with your name ie: "Jim-AI"
+    player2 = AIPlayer('X', NoahJudahMiniMax(9))
+    player1 = AIPlayer('O', MinimaxAI_depth_Eval('O', 5))  # Replace with student AI implementation - name function with your name ie: "Jim-AI"
 
-    wins = [0,0,0]
+    wins = [0,0,0]   # 0 - ties, 1 - p1, 2 - p2
 
     numGames = int(input("How many games to play? "))
+
+    #start timer
+    start_time = time.perf_counter()
+
     for currGame in range (1,numGames+1):
         game = TicTacToe(player1, player2)
         print_on(f"Game starting... {currGame} \n")
@@ -671,12 +1197,17 @@ if __name__ == "__main__":
 
         if winner == "tie": wins[0]= wins[0] + 1
 
+    #end timer
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+
     #done playing all the games, print the results
-    print ("\nRESULTS - ", numGames, "games played -")
+    print ("\nRESULTS - ", numGames, "games played -", " Elapsed time: ", elapsed_time, "seconds")
     print ("Player 1: ", wins[1], round((wins[1]/numGames)*100), "%","   Sym = ", player1.symbol, "  Strat = ", player1.strategy)
     print ("Player 2: ", wins[2], round((wins[2]/numGames)*100), "%","   Sym = ", player2.symbol, "  Strat = ", player2.strategy)
     print ("Ties    : ", wins[0], round((wins[0]/numGames)*100), "%")
     print ()
+
     if DRAW_GRAPHICS: input("press any key ... ")  # delay to keep graphic screen open
 
 

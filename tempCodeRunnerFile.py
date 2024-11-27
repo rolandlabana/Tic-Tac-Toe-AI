@@ -1,1 +1,1 @@
-SimpleAI
+   def __init__(self, symbol, max_depth=None):
