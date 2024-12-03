@@ -8,7 +8,7 @@ import time
 
 PRINT_ON = False
 DEBUG_PRINT_ON = False
-DRAW_GRAPHICS = True
+DRAW_GRAPHICS = False
 
 def print_on(s):
     if PRINT_ON == True:
@@ -59,7 +59,7 @@ class AIPlayer(Player):
             player1.movecount = -1  #don't care about movecount after this
             player2.movecount = -1
             game.make_move(random.randint(0,8), self.symbol)
-            print ("P1 First move random")
+            print_on ("P1 First move random")
             return   
 
         move = self.strategy.determine_move(game)
@@ -1184,8 +1184,8 @@ if __name__ == "__main__":
     #player1 = AIPlayer('X', MiniMaxGG(9))
     
     # ************ SET PLAYERS HERE **************************
-    player2 = AIPlayer('X', MinimaxAI_depth_Eval('X', 9)) 
-    player1 = AIPlayer('O', MiniMaxDepthGG('O', 1))
+    player1 = AIPlayer('X', MinimaxAI_depth_Eval('X', 9)) 
+    player2 = AIPlayer('O', MiniMaxDepthGG('O', 1))
     # ********************************************************
 
     wins = [0,0,0]   # 0 - ties, 1 - p1, 2 - p2
@@ -1210,7 +1210,7 @@ if __name__ == "__main__":
 
         if winner == "tie": wins[0]= wins[0] + 1
 
-        #set move count to one so the games are not always the same due to starting on same square each game
+        #reset move count to one after each game so the games are not always the same due to starting on same square each game
         player1.movecount = 1
         player2.movecount = 1
 
