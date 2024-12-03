@@ -1185,10 +1185,22 @@ if __name__ == "__main__":
     
     # ************ SET PLAYERS HERE **************************
     player1 = AIPlayer('X', MinimaxAI_depth_Eval('X', 9)) 
-    player2 = AIPlayer('O', MiniMaxDepthGG('O', 1))
+    player2 = AIPlayer('O', MiniMaxDepthGG('O', 5))
     # ********************************************************
 
     wins = [0,0,0]   # 0 - ties, 1 - p1, 2 - p2
+
+    # Print some instructions
+
+    print()
+    print("Make sure you set up your players as you like.")
+    print("**** All first moves by AI players will be RANDOM so the same game is not played over and over.")
+    print ()
+    print ("set DRAW_GRAPHICS = True to see the board in graphics.")
+    print ("set PRINT_ON = True to see text output.")
+    print ("set DEBUG_PRINT_ON = True to get detailed debug information.")
+    print ("NOTE: TURNING ON ANY OF THE ABOVE OPTIONS WILL GREATLY SLOW PLAY.")
+    print(); print()
 
     numGames = int(input("How many games to play? "))
 
